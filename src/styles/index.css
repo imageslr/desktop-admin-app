@@ -1,0 +1,47 @@
+* {
+    box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+    width: 100%;
+    height: 100%;
+}
+
+#app {
+    position: relative;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    min-width: 950px;
+    /*font-family: PingFangSC-Light, 'helvetica neue', 'hiragino sans gb', arial, 'microsoft yahei ui', 'microsoft yahei', simsun, sans-serif;*/
+}
+
+a {
+    color: #3377aa;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+a:hover,
+a:active {
+    color: #20a0ff;
+}
+
+small {
+    color: #475669;
+}
+
+
+
+
+/* 覆盖element-ui */
+
+.el-menu {
+    border-radius: 0;
+}
+
+
