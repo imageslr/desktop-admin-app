@@ -20,15 +20,11 @@ export function getUserInfo(token) {
     });
 }
 
+// 修改密码
 export function changePassword(id, originPassword, newPassword) {
     return fetch.post('/api/wiki/users/password', {
         id,
         originPassword,
         newPassword
     });
-}
-
-
-export function getWechatUsers(params) {
-    return fetch.get('/api/users', {params});
 }
