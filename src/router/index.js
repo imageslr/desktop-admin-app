@@ -28,16 +28,17 @@ export default new Router({
         path: '/user',
         component: resolve => require(['../views/layout/Layout.vue'], resolve),
         name: '用户管理',
+        redirect: '/user/wechat',
         icon: 'account',
         children: [{
             path: 'wechat',
             name: '小程序用户',
             component: resolve => require(['../views/user/Wechat.vue'], resolve),
-        },{
+        }, {
             path: 'library',
             name: '图书馆管理员',
-            component: resolve => require(['../views/dashboard/index.vue'], resolve),
-        },{
+            component: resolve => require(['../views/user/Library.vue'], resolve),
+        }, {
             path: 'wiki',
             name: 'Wiki系统用户',
             component: resolve => require(['../views/dashboard/index.vue'], resolve),

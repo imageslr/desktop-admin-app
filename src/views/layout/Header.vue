@@ -19,7 +19,7 @@
 </template>
 <script>
 import screenfull from '../../components/Screenfull.vue';
-import changePasswordDialog from './components/ChangePasswordDialog.vue';
+import changePasswordDialog from './ChangePasswordDialog.vue';
 export default {
     components: {
         screenfull,

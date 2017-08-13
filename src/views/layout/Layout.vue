@@ -18,6 +18,7 @@
         <div class="main">
             <app-head ref="header"></app-head>
             <div class="content-container">
+                <bread-crumb></bread-crumb>
                 <transition name="fade" mode="out-in">
                     <router-view :key="$route.fullPath" v-on:showLogin="$refs.header.showLogin()"></router-view>
                 </transition>
@@ -27,9 +28,11 @@
 </template>
 <script>
 import AppHead from './Header.vue';
+import BreadCrumb from './BreadCrumb.vue';
 export default {
     components: {
-        AppHead
+        AppHead,
+        BreadCrumb
     },
 }
 </script>

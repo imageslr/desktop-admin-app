@@ -1,8 +1,11 @@
 <template>
     <div>
         <el-form inline :model="searchOptions" ref="searchForm">
-            <el-form-item prop="phone">
-                <el-input v-model="searchOptions.phone" placeholder="手机号"></el-input>
+            <el-form-item prop="name">
+                <el-input v-model="searchOptions.name" placeholder="图书馆名称"></el-input>
+            </el-form-item>
+            <el-form-item prop="adminPhone">
+                <el-input v-model="searchOptions.adminPhone" placeholder="管理员手机号"></el-input>
             </el-form-item>
             <el-form-item prop="states">
                 <el-select v-model="searchOptions.states" multiple placeholder="账号状态">
@@ -21,8 +24,8 @@
             <el-table-column type="expand">
                 <template scope="props">
                     <el-form label-position="left" label-width="80px">
+                        <el-form-item label="描述">{{ props.row.description || '未填写' }}</el-form-item>
                         <el-form-item label="地址">{{ props.row.location || '未填写' }}</el-form-item>
-                        <el-form-item label="邮政编码">{{ props.row.postcode || '未填写' }}</el-form-item>
                         <el-form-item label="注册时间">{{ props.row.createTime}}</el-form-item>
                     </el-form>
                 </template>
@@ -36,54 +39,38 @@
             </el-table-column>
             <el-table-column label="操作" width="150">
                 <template scope="scope">
-                    <el-button v-if="scope.row.state == 0" size="small" type="primary" @click="showApprovalDialog(scope.row, scope.$index)">审 核</el-button>
-                    <el-button size="small" @click="showEditDialog(scope.row, scope.$index)">编 辑</el-button>
-                    <el-button v-if="scope.row.state != 0 && scope.row.state != 3" size="small" type="danger" @click="moveToBlacklist(scope.row.phone, scope.$index)">拉 黑</el-button>
-                    <el-button v-if="scope.row.state == 3" size="small" type="success" @click="moveOutBlacklist(scope.row.phone, scope.$index)">解 除</el-button>
+                    <el-button v-if="scope.row.state == 0" size="small" type="primary" @click="showApprovalDialog(scope.$index)">审 核</el-button>
+                    <el-button size="small" @click="showEditDialog(scope.$index)">编 辑</el-button>
+                    <el-button v-if="scope.row.state != 0 && scope.row.state != 3" size="small" type="danger" @click="moveToBlacklist(scope.$index)">拉 黑</el-button>
+                    <el-button v-if="scope.row.state == 3" size="small" type="success" @click="moveOutBlacklist(scope.$index)">解 除</el-button>
                 </template>
             </el-table-column>
         </el-table>
         <el-pagination layout="prev, pager, next" :total="total" :page-size="pageSize" :current-page.sync="currentPage" @current-change="fetchData">
         </el-pagination>
         <div>一共{{total}}个用户</div>
-        <el-dialog title="用户信息" :visible.sync="editDialog.visible">
+        <el-dialog title="图书馆信息" :visible.sync="editDialog.visible">
             <el-form label-width="120px" label-position="left" :model="editDialog.data">
-                <el-form-item label="手机号">
-                    <el-input disabled v-model="editDialog.data.phone"></el-input>
+                <el-form-item v-for="item in columns" :label="item.label">
+                    <el-input :disabled="item.disabled" v-model="editDialog.data[item.prop]" :type="item.isPassword? 'password' : ''"></el-input>
                 </el-form-item>
-                <el-form-item label="姓名">
-                    <el-input v-model="editDialog.data.name"></el-input>
-                </el-form-item>
-                <el-form-item label="身份证号">
-                    <el-input v-model="editDialog.data.idNumber"></el-input>
-                </el-form-item>
-                <el-form-item label="地址">
-                    <el-input v-model="editDialog.data.location"></el-input>
-                </el-form-item>
-                <el-form-item label="邮政编码">
-                    <el-input v-model="editDialog.data.postcode"></el-input>
-                </el-form-item>
-                <!-- <el-form-item label="账号状态">
+                <el-form-item label="账号状态">
                     <el-select v-model="editDialog.data.state" placeholder="请选择">
                         <el-option v-for="item in stateOptions" :key="item.value" :label="item.label" :value="item.value">
                         </el-option>
                     </el-select>
-                </el-form-item> -->
+                </el-form-item>
             </el-form>
             <div slot="footer">
-                <el-button v-if="users[editDialog.index] && users[editDialog.index].state != 3" type="danger" style="float: left" :loading="editDialog.blacklistBtnLoading" @click="moveToBlacklist(editDialog.data.phone, editDialog.index)">拉 黑</el-button>
-                <el-button v-if="users[editDialog.index] && users[editDialog.index].state == 3" type="success" style="float: left" :loading="editDialog.blacklistBtnLoading" @click="moveOutBlacklist(editDialog.data.phone, editDialog.index)">解除拉黑</el-button>
+                <el-button v-if="users[editDialog.index] && users[editDialog.index].state != 3" type="danger" style="float: left" :loading="editDialog.blacklistBtnLoading" @click="moveToBlacklist(editDialog.index)">拉 黑</el-button>
+                <el-button v-if="users[editDialog.index] && users[editDialog.index].state == 3" type="success" style="float: left" :loading="editDialog.blacklistBtnLoading" @click="moveOutBlacklist(editDialog.index)">解除拉黑</el-button>
                 <el-button @click="editDialog.visible = false">取 消</el-button>
                 <el-button type="primary" :loading="editDialog.updateBtnLoading" @click="updateUserInfo">确 定</el-button>
             </div>
         </el-dialog>
         <el-dialog title="审核结果" :visible.sync="approvalDialog.visible">
             <el-form ref="approvalForm" label-width="120px" label-position="left" :model="approvalDialog.data">
-                <el-form-item label="手机号">{{approvalDialog.data.phone || '未填写' }}</el-form-item>
-                <el-form-item label="姓名">{{approvalDialog.data.name || '未填写' }}</el-form-item>
-                <el-form-item label="身份证号">{{approvalDialog.data.idNumber || '未填写' }}</el-form-item>
-                <el-form-item label="地址">{{approvalDialog.data.location || '未填写' }}</el-form-item>
-                <el-form-item label="邮政编码">{{approvalDialog.data.postcode || '未填写' }}</el-form-item>
+                <el-form-item v-for="item in columns" :label="item.label">{{item.isPassword ? "******" : (approvalDialog.data[item.prop] || '未填写') }}</el-form-item>
                 <el-form-item label="审核结果">
                     <el-radio v-model="approvalDialog.data.state" :label="1">通过</el-radio>
                     <el-radio v-model="approvalDialog.data.state" :label="2">未通过</el-radio>
@@ -101,7 +88,7 @@
     </div>
 </template>
 <script>
-import { getUsers, updateUserInfoByPhone, updateStateByPhone, block, unblock } from '../../api/wechat.js';
+import { getUsers, updateLibraryInfoById, updateStateById, block, unblock } from '../../api/library.js';
 export default {
     data: () => {
         return {
@@ -112,26 +99,35 @@ export default {
             total: 0, // 用户总数
             users: [], // 表格数据
             columns: [{
-                prop: 'phone',
-                label: '手机号',
-                width: '150',
-            }, {
                 prop: 'name',
-                label: '姓名',
+                label: '图书馆名称',
+                minWidth: 150
+            }, {
+                prop: 'phone',
+                label: '联系电话',
+                width: '150',
                 formatter: function(row) {
-                    return row['name'] || '---';
+                    return row['phone'] || '---';
                 }
             }, {
-                prop: 'username',
-                label: '昵称',
-                minWidth: '150',
-            }, {
-                prop: 'idNumber',
-                label: '身份证号',
-                width: '150',
+                prop: 'adminName',
+                label: '管理员姓名',
+                width: '120',
                 formatter: function(row) {
-                    if (!row['idNumber']) return '---';
-                    return row['idNumber'].slice(0, 6) + '******';
+                    return row['adminName'] || '---';
+                }
+            }, {
+                prop: 'adminPhone',
+                label: '管理员手机号',
+                disabled: true,
+                width: '150',
+            }, {
+                prop: 'adminPassword',
+                label: '管理员密码',
+                width: '120',
+                isPassword: true,
+                formatter: function(row) {
+                    return '******';
                 }
             }],
             stateOptions: [
@@ -141,19 +137,21 @@ export default {
                 { value: 3, label: "已拉黑", type: 'gray' },
             ],
             searchOptions: {
-                phone: undefined,
+                name: undefined,
+                adminPhone: undefined,
                 states: []
             },
             editDialog: {
                 index: undefined, // 在users数组中的下标
                 visible: false,
                 data: {
-                    phone: undefined,
+                    id: undefined,
                     name: undefined,
-                    idNumber: undefined,
-                    location: undefined,
-                    postcode: undefined,
-                    //state: undefined
+                    phone: undefined,
+                    adminPhone: undefined,
+                    adminName: undefined,
+                    adminPassword: undefined,
+                    state: undefined
                 },
                 updateBtnLoading: false, // 编辑用户信息的提交按钮
                 blacklistBtnLoading: false, // 拉黑按钮
@@ -200,9 +198,9 @@ export default {
             }).finally(() => this.tableLoading = false);
         },
         // 显示审核Dialog
-        showApprovalDialog(row, index) {
+        showApprovalDialog(index) {
             this.approvalDialog.index = index;
-            this.approvalDialog.data = Object.assign({}, row);
+            this.approvalDialog.data = Object.assign({}, this.users[index]);
             this.approvalDialog.data.state = 1;
             this.approvalDialog.data.reason = "";
             this.approvalDialog.visible = true;
@@ -212,7 +210,7 @@ export default {
             this.$refs.approvalForm.validate((valid) => {
                 if (!valid) return;
                 this.approvalDialog.btnLoading = true;
-                updateStateByPhone(this.approvalDialog.data.phone, this.approvalDialog.data.state, this.approvalDialog.data.reason).then(() => {
+                updateStateById(this.approvalDialog.data.id, this.approvalDialog.data.state, this.approvalDialog.data.reason).then(() => {
                     this.approvalDialog.visible = false;
                     this.users[this.approvalDialog.index].state = this.approvalDialog.data.state;
                     this.$message.success("操作成功");
@@ -220,30 +218,30 @@ export default {
             })
         },
         // 显示编辑Dialog
-        showEditDialog(row, index) {
+        showEditDialog(index) {
             this.editDialog.index = index;
-            this.editDialog.data = Object.assign({}, row);
+            this.editDialog.data = Object.assign({}, this.users[index]);
             this.editDialog.visible = true;
         },
         // 编辑用户信息
         updateUserInfo() {
             this.editDialog.updateBtnLoading = true;
-            updateUserInfoByPhone(this.editDialog.data.phone, this.editDialog.data).then(() => {
+            updateLibraryInfoById(this.editDialog.data.id, this.editDialog.data).then(() => {
                 Object.keys(this.editDialog.data).forEach((key) => {
                     this.users[this.editDialog.index][key] = this.editDialog.data[key];
                 });
                 this.editDialog.visible = false;
-                this.$message.success("修改用户信息成功");
+                this.$message.success("修改图书馆信息成功");
             }).finally(() => this.editDialog.updateBtnLoading = false);
         },
         // 将用户拉入黑名单
-        moveToBlacklist(phone, index) {
+        moveToBlacklist(index) {
             this.$confirm('拉黑后该用户将无法使用该手机号登录系统', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
             }).then(() => {
-                block(phone).then(() => {
+                block(this.users[index].id).then(() => {
                     this.$message.success("操作成功");
                     this.users[index].state = 3;
                     this.editDialog.data.state = 3;
@@ -251,13 +249,13 @@ export default {
             });
         },
         // 将用户移出黑名单
-        moveOutBlacklist(phone, index) {
+        moveOutBlacklist(index) {
             this.$confirm('解除拉黑后该用户可正常登录系统并使用', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
             }).then(() => {
-                unblock(phone).then(() => {
+                unblock(this.users[index].id).then(() => {
                     this.$message.success("操作成功");
                     this.users[index].state = 0;
                     this.editDialog.data.state = 1;

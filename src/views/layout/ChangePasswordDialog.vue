@@ -19,7 +19,7 @@
     </el-dialog>
 </template>
 <script>
-import { changePassword } from '../../../api/index.js';
+import { changePassword } from '../../api/index.js';
 export default {
     data() {
         return {
