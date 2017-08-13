@@ -258,7 +258,7 @@ export default {
                 unblock(this.users[index].id).then(() => {
                     this.$message.success("操作成功");
                     this.users[index].state = 0;
-                    this.editDialog.data.state = 1;
+                    this.editDialog.data.state = 0;
                 })
             });
         },

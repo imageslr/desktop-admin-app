@@ -41,7 +41,7 @@ export default new Router({
         }, {
             path: 'wiki',
             name: 'Wiki系统用户',
-            component: resolve => require(['../views/dashboard/index.vue'], resolve),
+            component: resolve => require(['../views/user/Wiki.vue'], resolve),
         }]
     }, {
         path: '/404',

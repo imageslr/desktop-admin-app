@@ -14,6 +14,11 @@
                     <el-menu-item v-for="child in item.children" :index="item.path+'/'+child.path" :key="child.path" v-if="!child.hidden">{{child.name}}</el-menu-item>
                 </el-submenu>
             </template>
+            <a href="https://api.mymoonlight.cn/wiki/" target="blank">
+                <li class="el-menu-item">
+                    <icon-svg class="sidebar-icon" icon-class="viewlist"></icon-svg>图书管理
+                </li>
+            </a>
         </el-menu>
         <div class="main">
             <app-head ref="header"></app-head>
