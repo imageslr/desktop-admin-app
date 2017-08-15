@@ -101,7 +101,7 @@ export default {
             columns: [{
                 prop: 'name',
                 label: '图书馆名称',
-                minWidth: 150
+                minWidth: 200
             }, {
                 prop: 'phone',
                 label: '联系电话',

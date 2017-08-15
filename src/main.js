@@ -9,14 +9,17 @@ import store from './store';
 import { getToken } from './utils/auth.js';
 require('promise.prototype.finally').shim();
 import './assets/iconfont.js'; // iconfont
-import IconSvg from './components/IconSvg.vue';  // svg 组件
+import IconSvg from './components/IconSvg.vue'; // svg 组件
 
 Vue.use(ElementUI);
 Vue.component('icon-svg', IconSvg);
 
+// 每隔5秒钟查询消息数量
+setInterval(() => store.dispatch("GET_MESSAGE_NUMBERS"), 5000);
+
+
 router.beforeEach((to, from, next) => {
     NProgress.start();
-
     // 如果已经登录
     if (getToken()) {
         // 如果没有获取用户信息，则获取用户信息

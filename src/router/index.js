@@ -44,6 +44,17 @@ export default new Router({
             component: resolve => require(['../views/user/Wiki.vue'], resolve),
         }]
     }, {
+        path: '/message',
+        component: resolve => require(['../views/layout/Layout.vue'], resolve),
+        noDropdown: true,
+        meta: { noBreadCrumb: true },
+        icon: 'email',
+        children: [{
+            path: '',
+            name: '消息中心',
+            component: resolve => require(['../views/message/index.vue'], resolve),
+        }]
+    }, {
         path: '/404',
         hidden: true,
         component: resolve => require(['../views/layout/Layout.vue'], resolve),

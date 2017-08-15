@@ -9,12 +9,12 @@
                 </el-menu-item>
                 <el-submenu :index="index+''" v-if="!item.noDropdown&&!item.hidden">
                     <template slot="title">
-                        <icon-svg v-if='item.icon' class="sidebar-icon" :icon-class="item.icon"></icon-svg>{{item.name}}
+                            <icon-svg v-if='item.icon' class="sidebar-icon" :icon-class="item.icon"></icon-svg>{{item.name}}
                     </template>
                     <el-menu-item v-for="child in item.children" :index="item.path+'/'+child.path" :key="child.path" v-if="!child.hidden">{{child.name}}</el-menu-item>
                 </el-submenu>
             </template>
-            <a href="https://api.mymoonlight.cn/wiki/" target="blank">
+            <a href="https://api.mymoonlight.cn/wiki/" target="_blank">
                 <li class="el-menu-item">
                     <icon-svg class="sidebar-icon" icon-class="viewlist"></icon-svg>图书管理
                 </li>
@@ -23,7 +23,7 @@
         <div class="main">
             <app-head ref="header"></app-head>
             <div class="content-container">
-                <bread-crumb></bread-crumb>
+                <bread-crumb v-if="!noBreadCrumb"></bread-crumb>
                 <transition name="fade" mode="out-in">
                     <router-view :key="$route.fullPath" v-on:showLogin="$refs.header.showLogin()"></router-view>
                 </transition>
@@ -39,6 +39,12 @@ export default {
         AppHead,
         BreadCrumb
     },
+    computed: {
+        noBreadCrumb() {
+            //return false;
+            return this.$route.matched.some(item => item.meta.noBreadCrumb);
+        }
+    }
 }
 </script>
 <style scoped>
