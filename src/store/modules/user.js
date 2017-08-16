@@ -33,8 +33,6 @@ const user = {
                     commit('SET_NICKNAME', response.nickname);
                     commit('SET_TOKEN', response.token);
                     setToken(response.token);
-                    console.log(response.token)
-                    console.log(getToken());
                     resolve();
                 }).catch(error => {
                     reject(error);

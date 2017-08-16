@@ -154,7 +154,7 @@ export default {
                 this.loginLoading = true;
                 this.$store.dispatch('LOGIN', this.loginForm).then(() => {
                     this.$message.success('登录成功');
-                    this.$router.replace({ path: '/dashboard' });
+                    this.$router.replace({ path: '/dashboard/' });
                 }).finally(() => {
                     this.loginLoading = false;
                 });

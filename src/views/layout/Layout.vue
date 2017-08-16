@@ -1,10 +1,11 @@
 <template>
     <div class="container">
-        <el-menu class="sidebar" :unique-opened="true" :default-active="$route.path" theme="dark" router>
+        <el-menu class="sidebar" :unique-opened="true" :default-active="isMessagePath?'/message/':$route.path" theme="dark" router>
             <template v-for="(item,index) in $router.options.routes">
-                <el-menu-item v-if="!item.hidden&&item.noDropdown&&item.children.length>0" :index="item.path+'/'+item.children[0].path">
+                <el-menu-item v-if="!item.hidden&&item.noDropdown" :index="item.path+'/'+item.children[0].path">
                     <template slot="title">
                         <icon-svg v-if='item.icon' class="sidebar-icon" :icon-class="item.icon"></icon-svg>{{item.children[0].name}}
+                        <el-badge class="menu-badge" v-if="item.isMessageItem && messageNumber" :value="messageNumber" />
                     </template>
                 </el-menu-item>
                 <el-submenu :index="index+''" v-if="!item.noDropdown&&!item.hidden">
@@ -42,7 +43,13 @@ export default {
     computed: {
         noBreadCrumb() {
             //return false;
-            return this.$route.matched.some(item => item.meta.noBreadCrumb);
+            return this.$route.matched[this.$route.matched.length-1].meta.noBreadCrumb;
+        },
+        messageNumber(){
+            return this.$store.getters.unReadMessageNumber;
+        },
+        isMessagePath(){
+            return this.$route.matched.some(i => i.path == '/message');
         }
     }
 }
@@ -98,5 +105,14 @@ export default {
 
 {
     opacity: 0
+}
+</style>
+<style>
+.menu-badge {
+    margin-left: 8px;
+    line-height: 1;
+}
+.menu-badge .el-badge__content {
+    border: 0;
 }
 </style>

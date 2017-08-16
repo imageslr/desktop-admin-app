@@ -14,8 +14,12 @@ import IconSvg from './components/IconSvg.vue'; // svg 组件
 Vue.use(ElementUI);
 Vue.component('icon-svg', IconSvg);
 
-// 每隔5秒钟查询消息数量
-setInterval(() => store.dispatch("GET_MESSAGE_NUMBERS"), 5000);
+// 每隔一定时间查询消息数量
+setInterval(() => {
+    if(store.getters.token){
+        store.dispatch("GET_MESSAGE_NUMBERS")
+    }
+}, 5000);
 
 
 router.beforeEach((to, from, next) => {

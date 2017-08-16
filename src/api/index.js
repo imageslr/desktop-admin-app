@@ -28,3 +28,7 @@ export function changePassword(id, originPassword, newPassword) {
         newPassword
     });
 }
+
+export function getSummary(){
+    return fetch.get('/api/summary');
+}

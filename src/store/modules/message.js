@@ -2,7 +2,7 @@ import { getNumberOfMessages } from '../../api/message';
 import Vue from 'vue';
 import notifyMessage from '../../utils/notify.js';
 
-const app = {
+const message = {
     state: {
         showMessageTip: '',
         // 不同类型用户的消息数量:{total, unReadTotal}，依次对应：wiki系统(type: 1)、图书馆(type: 2)、小程序(type: 3)
@@ -18,13 +18,15 @@ const app = {
             state.messageNumbers.filter((i, index) => i.unReadTotal < messageNumbers[index].unReadTotal).map((i) => i.senderType).map(i => notifyMessage(i));
             state.messageNumbers = messageNumbers;
         },
-        SET_MESSAGE_NUMBERS_BY_TYPE: (state, obj) => {
+        SET_MESSAGE_NUMBER_BY_TYPE: (state, obj) => {
             // 未读邮件增加时发送通知
-            if(state.messageNumbers[obj.type-1].unReadTotal < obj.unReadTotal) {
-                notifyMessage(obj.type);
+            if (state.messageNumbers[obj.senderType - 1].unReadTotal < obj.unReadTotal) {
+                notifyMessage(obj.senderType);
             }
-            state.messageNumbers[obj.type-1].total = obj.total;
-            state.messageNumbers[obj.type-1].unReadTotal = obj.unReadTotal;
+            Vue.set(state.messageNumbers, obj.senderType - 1, obj);
+        },
+        DECREASE_MESSAGE_NUMBER_BY_TYPE: (state, type) => {
+            state.messageNumbers[type - 1].unReadTotal--;
         },
     },
 
@@ -43,4 +45,4 @@ const app = {
     }
 };
 
-export default app;
+export default message;

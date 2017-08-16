@@ -1,9 +1,9 @@
 <template>
     <div class="message-box">
         <div class="summary-text">一共{{total}}封邮件， 其中未读邮件{{unReadTotal}}封</div>
-        <el-button type="text" @click="refreshTable">刷新</el-button>
+        <el-button type="text" @click="refresh">刷新</el-button>
         <el-button type="text" style="float: right; line-height: 20px" @click="showTip">查看提示</el-button>
-        <el-table v-loading="tableLoading" :data="messages" style="width: 100%" :row-class-name="rowClassName">
+        <el-table v-loading="tableLoading" :data="messages" style="width: 100%" :row-class-name="rowClassName" @row-click="navigateToDetail">
             <el-table-column width="40">
                 <template scope="scope">
                     <icon-svg class="sidebar-icon" icon-class="email"></icon-svg>
@@ -17,7 +17,7 @@
             </el-table-column>
             <el-table-column prop="createTime" label="时间" width="130" show-overflow-tooltip :formatter="formatTime"></el-table-column>
         </el-table>
-        <el-pagination layout="prev, pager, next" :total="total" :page-size="pageSize" :current-page.sync="currentPage" @current-change="fetchData">
+        <el-pagination layout="prev, pager, next" :total="total" :page-size="pageSize" :current-page="currentPage" @current-change="navigateToPage">
         </el-pagination>
     </div>
 </template>
@@ -28,78 +28,77 @@ export default {
     data: () => {
         return {
             tableLoading: false,
-            currentTableType: 'all', // all || search
             pageSize: 15,
-            currentPage: 1,
-            messages: [],
-            searchOptions: {
-                nickname: undefined,
-                email: undefined,
-                states: []
-            },
+            messages: []
         }
     },
     computed: {
         total() {
-            return this.$store.getters.messageNumbers[this.senderType-1].total;
+            return this.$store.getters.messageNumbers[this.senderType - 1].total;
         },
         unReadTotal() {
-            return this.$store.getters.messageNumbers[this.senderType-1].unReadTotal;
+            return this.$store.getters.messageNumbers[this.senderType - 1].unReadTotal;
+        },
+        currentPage(){
+            return parseInt(this.$route.query.p) || 1;
         }
     },
     created: function() {
-        this.fetchData(1);
+        this.fetchData();
     },
     methods: {
-        // 搜索
-        handleSearch() {
-            this.currentTableType = 'search';
-            if (this.currentPage == 1)
-                this.fetchData(1);
-            else this.currentPage = 1;
-        },
-        // 刷新表格，取消搜索状态
-        refreshTable() {
-            this.currentTableType = 'all';
-            if (this.currentPage == 1)
-                this.fetchData(1);
-            else this.currentPage = 1;
-        },
         // 获取数据
-        fetchData(p) {
+        fetchData() {
             this.tableLoading = true;
             var params = {
                 sender_type: this.senderType,
-                start: (p - 1) * this.pageSize,
+                start: (this.currentPage - 1) * this.pageSize,
                 count: this.pageSize
             };
-            if (this.currentTableType == 'search') {
-                params = Object.assign(params, this.searchOptions);
-            }
             getMessages(params).then((res) => {
                 this.messages = res.items;
-                this.$store.commit('SET_MESSAGE_NUMBERS_BY_TYPE', {
-                    type: this.senderType,
+                this.$store.commit('SET_MESSAGE_NUMBER_BY_TYPE', {
+                    senderType: this.senderType,
                     total: res.total,
                     unReadTotal: res.unReadTotal
                 });
             }).finally(() => this.tableLoading = false);
         },
+        // 刷新页面
+        refresh() {
+            this.$router.replace({path: '', query: {t: Date.now()}});
+        },
+        navigateToDetail(row) {
+            this.$router.push({
+                name: '消息详情',
+                params: { id: row.id }
+            });
+        },
+        navigateToPage(page) {
+            this.$router.push({
+                path: this.$route.path,
+                query: {
+                    p: page
+                }
+            })
+        },
         rowClassName(row) {
             return row.isRead == 0 ? 'unread' : ''
         },
         formatTime(row) {
+            var apz = this.addPrefixZero;
             var date = new Date(row.createTime);
             var today = new Date();
+
             if (date.getFullYear() == today.getFullYear()) {
                 if (date.getMonth() == today.getMonth() && date.getDate() == today.getDate()) {
-                    return '今天' + date.getHours() + ': ' + date.getMinutes();
+                    return '今天' + apz(date.getHours()) + ': ' + apz(date.getMinutes());
                 } else if (this.isYesterDay(date, today)) {
-                    return '昨天' + date.getHours() + ': ' + date.getMinutes();
+                    return '昨天' + apz(date.getHours()) + ': ' + apz(date.getMinutes());
                 }
-                return (date.getMonth() + 1 )+ '月' + date.getDate() + '日';
+                return (date.getMonth() + 1) + '月' + date.getDate() + '日';
             }
-            return date.getFullYear() + '/' + (date.getMonth() + 1 )+ '/' + date.getDate();
+            return date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate();
         },
         isYesterDay(date, today) {
             var month1 = date.getMonth() + 1;
@@ -109,17 +108,20 @@ export default {
             if (month1 == month2 && date1 == date2 - 1) {
                 return true;
             } else if (month1 == month2 - 1 && date2 == 1) {
-                if(month1 == 2 && date1 < 28) return false;
+                if (month1 == 2 && date1 < 28) return false;
                 return [1, 3, 5, 7, 8, 10, 12].some(i => i == month1 && date1 == 31) || [2, 4, 6, 9, 11].some(i => i == month1 && date1 == 30);
             }
             return false;
         },
-        showTip(){
+        addPrefixZero(num) {
+            return num < 10 ? '0' + num : num;
+        },
+        showTip() {
             this.$notify.info({
                 title: '提示',
                 message: '这里展示了各个平台用户的意见反馈，选择邮件可查看详情'
             });
-        }
+        },
     }
 }
 </script>
@@ -160,6 +162,6 @@ export default {
 }
 
 .message-box .unread {
-    font-weight: bold;
+    font-weight: bolder;
 }
 </style>

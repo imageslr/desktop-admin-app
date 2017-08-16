@@ -19,7 +19,9 @@ export default {
     methods: {
         getBreadcrumb() {
             let matched = this.$route.matched.filter(item => item.name);
-            const first = matched[0];
+            if(this.$route.matched.some(i => i.path == '/message')) {
+                matched.unshift({path: '/message', name: '消息中心'});
+            }
             this.levelList = matched;
         }
     },

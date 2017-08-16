@@ -1,9 +1,9 @@
 <template>
-    <el-tabs class="message-tabs" v-model="tabIndex" type="card">
-        <el-tab-pane v-for="item in tabs" :name="item.type">
-            <span :class="{'has-unread-message': numbers[item.type-1]!=0}" slot="label">
-            {{item.label + (numbers[item.type-1]==0 ? '' : ' ('+numbers[item.type-1]+')')}}
-            </span>
+    <el-tabs class="message-tabs" :value="currentName" type="card" @tab-click="click">
+        <el-tab-pane v-for="item in tabs" :key="item.type" :name="item.name">
+            <span slot="label" :class="{'has-unread-message': numbers[item.type-1]!=0}">
+                {{item.label + (numbers[item.type-1]==0 ? '' : ' ('+numbers[item.type-1]+')')}}
+                </span>
             <message-box :sender-type="item.type"></message-box>
         </el-tab-pane>
     </el-tabs>
@@ -14,24 +14,37 @@ export default {
     components: {
         MessageBox
     },
-    computed: {
-        numbers() {
-            return this.$store.getters.messageNumbers.map(i => i.unReadTotal);
-        }
-    },
     data() {
         return {
-            tabIndex: '1',
             tabs: [{
                 label: "Wiki系统",
                 type: '1',
+                name: 'wiki'
             }, {
                 label: "图书馆",
                 type: '2',
+                name: 'library'
             }, {
                 label: "小程序",
                 type: '3',
+                name: 'wechat'
             }]
+        }
+    },
+    computed: {
+        numbers() {
+            return this.$store.getters.messageNumbers.map(i => i.unReadTotal);
+        },
+        currentName() {
+            return this.$route.params.name;
+        }
+    },
+    methods: {
+        click(e) {
+            // hack方法，如果直接push会报错：offsetWidth undefined   
+            this.$nextTick().then(() => {
+                this.$router.push({ name: '收件箱', params: { name: e.name } });
+            })
         }
     }
 }
