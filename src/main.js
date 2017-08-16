@@ -24,9 +24,21 @@ setInterval(() => {
 
 router.beforeEach((to, from, next) => {
     NProgress.start();
-    // 如果已经登录
-    if (getToken()) {
-        // 如果没有获取用户信息，则获取用户信息
+
+    // 如果进入登录页，在有token的时候跳至主页
+    if (to.path == '/login') {
+        if (getToken()) {
+            next({ path: '/dashboard' })
+            NProgress.done();
+        } else {
+            next();
+        }
+    }
+    // 如果进入的不是登录页，在有token的时候获取用户信息，没token的时候跳到登录页
+    else if (!getToken()) {
+        next({ path: '/login' })
+        NProgress.done(); // hack
+    } else {
         if (store.getters.id == '') {
             store.dispatch('GET_INFO').then(() => {
                 next();
@@ -34,14 +46,6 @@ router.beforeEach((to, from, next) => {
                 ElementUI.Message.error("获取用户信息失败，请刷新重试");
                 NProgress.done();
             });
-        } else {
-            NProgress.done();
-            next();
-        }
-    } else {
-        if (to.path != '/login') {
-            next({ path: '/login' });
-            NProgress.done();
         } else {
             next();
         }

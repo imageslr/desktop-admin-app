@@ -45,6 +45,6 @@ export default {
     display: inline-block;
     cursor: pointer;
     vertical-align: middle;
-    fill: rgb(72, 87, 106);;
+    fill: rgb(72, 87, 106);
 }
 </style>

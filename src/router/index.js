@@ -8,7 +8,7 @@ export default new Router({
     routes: [{
         path: '/',
         hidden: true,
-        component: resolve => require(['../views/login/index.vue'], resolve)
+        redirect: '/login'
     }, {
         path: '/login',
         hidden: true,
