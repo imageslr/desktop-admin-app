@@ -2,7 +2,7 @@
     <div>
         <el-form inline :model="searchOptions" ref="searchForm">
             <el-form-item prop="phone">
-                <el-input v-model="searchOptions.phone" placeholder="手机号"></el-input>
+                <el-input v-model="searchOptions.phone" placeholder="手机号" @keyup.enter.native="handleSearch()"></el-input>
             </el-form-item>
             <el-form-item prop="states">
                 <el-select v-model="searchOptions.states" multiple placeholder="账号状态">
@@ -20,9 +20,21 @@
         <el-table v-loading="tableLoading" :data="users" stripe style="width: 100%">
             <el-table-column type="expand">
                 <template scope="props">
-                    <el-form label-position="left" label-width="80px">
+                    <el-form label-position="left" label-width="110px">
                         <el-form-item label="地址">{{ props.row.location || '未填写' }}</el-form-item>
                         <el-form-item label="邮政编码">{{ props.row.postcode || '未填写' }}</el-form-item>
+                        <el-form-item label="身份证（正面）">
+                            <a v-if="props.row.idCardImgFront" :href="props.row.idCardImgFront" target="_blank">
+                                <img class="id-card-img" :src="props.row.idCardImgFront">
+                            </a>
+                            <div v-else>未上传</div>
+                        </el-form-item>
+                        <el-form-item label="身份证（反面）">
+                            <a v-if="props.row.idCardImgBack" :href="props.row.idCardImgBack" target="_blank">
+                                <img class="id-card-img" :src="props.row.idCardImgBack">
+                            </a>
+                            <div v-else>未上传</div>
+                        </el-form-item>
                         <el-form-item label="注册时间">{{ props.row.createTime}}</el-form-item>
                     </el-form>
                 </template>
@@ -84,6 +96,18 @@
                 <el-form-item label="身份证号">{{approvalDialog.data.idNumber || '未填写' }}</el-form-item>
                 <el-form-item label="地址">{{approvalDialog.data.location || '未填写' }}</el-form-item>
                 <el-form-item label="邮政编码">{{approvalDialog.data.postcode || '未填写' }}</el-form-item>
+                <el-form-item label="身份证（正面）">
+                    <a v-if="approvalDialog.data.idCardImgFront" :href="approvalDialog.data.idCardImgFront" target="_blank">
+                        <img class="id-card-img" :src="editDialog.data.idCardImgFront">
+                    </a>
+                    <div v-else>未上传</div>
+                </el-form-item>
+                <el-form-item label="身份证（反面）">
+                    <a v-if="approvalDialog.data.idCardImgBack" :href="approvalDialog.data.idCardImgBack" target="_blank">
+                        <img class="id-card-img" :src="approvalDialog.data.idCardImgBack">
+                    </a>
+                    <div v-else>未上传</div>
+                </el-form-item>
                 <el-form-item label="审核结果">
                     <el-radio v-model="approvalDialog.data.state" :label="1">通过</el-radio>
                     <el-radio v-model="approvalDialog.data.state" :label="2">未通过</el-radio>
@@ -279,5 +303,10 @@ export default {
 
 .dialog-footer>.deleteBtn {
     float: left;
+}
+
+.id-card-img {
+    max-height: 200px;
+    max-width: 100%;
 }
 </style>

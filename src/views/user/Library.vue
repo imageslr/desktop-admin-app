@@ -2,10 +2,10 @@
     <div>
         <el-form inline :model="searchOptions" ref="searchForm">
             <el-form-item prop="name">
-                <el-input v-model="searchOptions.name" placeholder="图书馆名称"></el-input>
+                <el-input v-model="searchOptions.name" placeholder="图书馆名称" @keyup.enter.native="handleSearch()"></el-input>
             </el-form-item>
             <el-form-item prop="adminPhone">
-                <el-input v-model="searchOptions.adminPhone" placeholder="管理员手机号"></el-input>
+                <el-input v-model="searchOptions.adminPhone" placeholder="管理员手机号" @keyup.enter.native="handleSearch()"></el-input>
             </el-form-item>
             <el-form-item prop="states">
                 <el-select v-model="searchOptions.states" multiple placeholder="账号状态">

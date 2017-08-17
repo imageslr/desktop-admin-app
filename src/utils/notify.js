@@ -18,7 +18,7 @@ export default function notifyMessage(type) {
     }
     Notification.info({
         title: '提示',
-        message: '您在收件箱：' + boxName + ' 中有新的未读消息，请点击该收件箱内的刷新按钮查看',
+        message: '您在收件箱：' + boxName + ' 中有新的未读消息，请刷新该收件箱查看',
         duration: 0
     });
 }
