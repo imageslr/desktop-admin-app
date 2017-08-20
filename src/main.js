@@ -15,8 +15,11 @@ Vue.use(ElementUI);
 Vue.component('icon-svg', IconSvg);
 
 // 每隔一定时间查询消息数量
+if (store.getters.token) {
+    store.dispatch("GET_MESSAGE_NUMBERS")
+}
 setInterval(() => {
-    if(store.getters.token){
+    if (store.getters.token) {
         store.dispatch("GET_MESSAGE_NUMBERS")
     }
 }, 5000);

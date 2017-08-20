@@ -15,7 +15,8 @@ const message = {
         },
         SET_MESSAGE_NUMBERS: (state, messageNumbers) => {
             // 未读邮件增加时发送通知
-            state.messageNumbers.filter((i, index) => i.unReadTotal < messageNumbers[index].unReadTotal).map((i) => i.senderType).map(i => notifyMessage(i));
+            // 添加setTimeout防止出现Notification的覆盖
+            state.messageNumbers.filter((i, index) => i.unReadTotal < messageNumbers[index].unReadTotal).map((i) => i.senderType).forEach(i => setTimeout(()=>notifyMessage(i)));
             state.messageNumbers = messageNumbers;
         },
         SET_MESSAGE_NUMBER_BY_TYPE: (state, obj) => {

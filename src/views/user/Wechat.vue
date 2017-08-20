@@ -24,15 +24,11 @@
                         <el-form-item label="地址">{{ props.row.location || '未填写' }}</el-form-item>
                         <el-form-item label="邮政编码">{{ props.row.postcode || '未填写' }}</el-form-item>
                         <el-form-item label="身份证（正面）">
-                            <a v-if="props.row.idCardImgFront" :href="props.row.idCardImgFront" target="_blank">
-                                <img class="id-card-img" :src="props.row.idCardImgFront">
-                            </a>
+                            <img v-if="props.row.idCardImgFront" class="id-card-img" :src="props.row.idCardImgFront" @click="handlePicturePreview(props.row.idCardImgFront)">
                             <div v-else>未上传</div>
                         </el-form-item>
                         <el-form-item label="身份证（反面）">
-                            <a v-if="props.row.idCardImgBack" :href="props.row.idCardImgBack" target="_blank">
-                                <img class="id-card-img" :src="props.row.idCardImgBack">
-                            </a>
+                            <img v-if="props.row.idCardImgBack" class="id-card-img" :src="props.row.idCardImgBack" @click="handlePicturePreview(props.row.idCardImgBack)">
                             <div v-else>未上传</div>
                         </el-form-item>
                         <el-form-item label="注册时间">{{ props.row.createTime}}</el-form-item>
@@ -97,15 +93,11 @@
                 <el-form-item label="地址">{{approvalDialog.data.location || '未填写' }}</el-form-item>
                 <el-form-item label="邮政编码">{{approvalDialog.data.postcode || '未填写' }}</el-form-item>
                 <el-form-item label="身份证（正面）">
-                    <a v-if="approvalDialog.data.idCardImgFront" :href="approvalDialog.data.idCardImgFront" target="_blank">
-                        <img class="id-card-img" :src="editDialog.data.idCardImgFront">
-                    </a>
+                    <img v-if="approvalDialog.data.idCardImgFront" class="id-card-img" :src="approvalDialog.data.idCardImgFront" @click="handlePicturePreview(approvalDialog.data.idCardImgFront)">
                     <div v-else>未上传</div>
                 </el-form-item>
                 <el-form-item label="身份证（反面）">
-                    <a v-if="approvalDialog.data.idCardImgBack" :href="approvalDialog.data.idCardImgBack" target="_blank">
-                        <img class="id-card-img" :src="approvalDialog.data.idCardImgBack">
-                    </a>
+                    <img v-if="approvalDialog.data.idCardImgBack" class="id-card-img" :src="approvalDialog.data.idCardImgBack" @click="handlePicturePreview(approvalDialog.data.idCardImgBack)">
                     <div v-else>未上传</div>
                 </el-form-item>
                 <el-form-item label="审核结果">
@@ -121,6 +113,9 @@
                 <el-button @click="approvalDialog.visible = false">取 消</el-button>
                 <el-button type="primary" :loading="approvalDialog.btnLoading" @click="approve">确 定</el-button>
             </div>
+        </el-dialog>
+        <el-dialog v-model="previewDialog.visible">
+            <img width="100%" :src="previewDialog.imageUrl" alt="">
         </el-dialog>
     </div>
 </template>
@@ -188,6 +183,10 @@ export default {
                 data: {},
                 btnLoading: false,
                 reasonRule: { required: true, message: '请填写反馈信息', trigger: 'blur' },
+            },
+            previewDialog: {
+                visible: false,
+                imageUrl: ""
             }
         }
     },
@@ -287,6 +286,10 @@ export default {
                     this.editDialog.data.state = 0;
                 })
             });
+        },
+        handlePicturePreview(url) {
+            this.previewDialog.imageUrl = url;
+            this.previewDialog.visible = true;
         },
     }
 }

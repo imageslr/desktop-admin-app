@@ -23,15 +23,33 @@
         <el-table v-loading="tableLoading" :data="users" stripe style="width: 100%">
             <el-table-column type="expand">
                 <template scope="props">
-                    <el-form label-position="left" label-width="80px">
+                    <el-form label-position="left" label-width="50px">
                         <el-form-item label="描述">{{ props.row.description || '未填写' }}</el-form-item>
                         <el-form-item label="地址">{{ props.row.location || '未填写' }}</el-form-item>
-                        <el-form-item label="注册时间">{{ props.row.createTime}}</el-form-item>
+                        <el-form-item label="照片">
+                            <el-carousel v-if="props.row.imageUrls && props.row.imageUrls.length" :interval="4000" type="card" height="200px" style="max-width: 700px">
+                                <el-carousel-item v-for="item in props.row.imageUrls" :key="item">
+                                    <img :src="item" style="max-height: 200px" @click="handlePreview({url: item})">
+                                </el-carousel-item>
+                            </el-carousel>
+                            <div v-else>未上传</div>
+                        </el-form-item>
+                        <el-form-item label="资质证明文件" label-width="100px">
+                            <el-carousel v-if="props.row.qualificationImageUrls && props.row.qualificationImageUrls.length" :interval="4000" type="card" height="200px" style="max-width: 700px">
+                                <el-carousel-item v-for="item in props.row.qualificationImageUrls" :key="item">
+                                    <img :src="item" style="max-height: 200px" @click="handlePreview({url: item})">
+                                </el-carousel-item>
+                            </el-carousel>
+                            <div v-else>未上传</div>
+                        </el-form-item>
+                        <el-form-item label="注册时间" label-width="70px">{{ props.row.createTime}}</el-form-item>
                     </el-form>
                 </template>
             </el-table-column>
-            <el-table-column v-for="column in columns" :prop="column.prop" :label="column.label" :width="column.width" :min-width="column.minWidth" show-overflow-tooltip :formatter="column.formatter">
-            </el-table-column>
+            <template v-for="column in columns">
+                <el-table-column v-if="!column.hiddenInTable" :prop="column.prop" :label="column.label" :width="column.width" :min-width="column.minWidth" show-overflow-tooltip :formatter="column.formatter">
+                </el-table-column>
+            </template>
             <el-table-column label="状态" width="90">
                 <template scope="scope">
                     <el-tag :type="stateOptions[scope.row.state].type">{{stateOptions[scope.row.state].label}}</el-tag>
@@ -40,7 +58,7 @@
             <el-table-column label="操作" width="150">
                 <template scope="scope">
                     <el-button v-if="scope.row.state == 0" size="small" type="primary" @click="showApprovalDialog(scope.$index)">审 核</el-button>
-                    <el-button size="small" @click="showEditDialog(scope.$index)">编 辑</el-button>
+                    <el-button size="small" @click="showEditDialog(scope.$index, scope.row)">编 辑</el-button>
                     <el-button v-if="scope.row.state != 0 && scope.row.state != 3" size="small" type="danger" @click="moveToBlacklist(scope.$index)">拉 黑</el-button>
                     <el-button v-if="scope.row.state == 3" size="small" type="success" @click="moveOutBlacklist(scope.$index)">解 除</el-button>
                 </template>
@@ -49,16 +67,28 @@
         <el-pagination layout="prev, pager, next" :total="total" :page-size="pageSize" :current-page.sync="currentPage" @current-change="fetchData">
         </el-pagination>
         <div>一共{{total}}个用户</div>
-        <el-dialog title="图书馆信息" :visible.sync="editDialog.visible">
+        <el-dialog title="编辑图书馆信息" :visible.sync="editDialog.visible" @close="resetEditDialog">
             <el-form label-width="120px" label-position="left" :model="editDialog.data">
                 <el-form-item v-for="item in columns" :label="item.label">
-                    <el-input :disabled="item.disabled" v-model="editDialog.data[item.prop]" :type="item.isPassword? 'password' : ''"></el-input>
+                    <el-input :disabled="item.disabled" v-model="editDialog.data[item.prop]" :type="item.type" :rows="item.rows"></el-input>
                 </el-form-item>
                 <el-form-item label="账号状态">
                     <el-select v-model="editDialog.data.state" placeholder="请选择">
                         <el-option v-for="item in stateOptions" :key="item.value" :label="item.label" :value="item.value">
                         </el-option>
                     </el-select>
+                </el-form-item>
+                <el-form-item label="图书馆照片">
+                    <el-upload action="/api/libraries/upload" name="picture" :file-list="editDialog.imageList" list-type="picture-card" accept="image/jpeg, image/jpg, image/png" :on-preview="handlePreview" :before-upload="beforePictureUpload" :on-change="handlePictureChange" :on-remove="handlePictureChange" :httpRequest="httpRequest">
+                        <div slot="tip" class="el-upload__tip">最多上传9张照片，每张照片不超过2MB</div>
+                        <i class="el-icon-plus"></i>
+                    </el-upload>
+                </el-form-item>
+                <el-form-item label="资质证明文件">
+                    <el-upload action="/api/libraries/upload" name="picture" :file-list="editDialog.qualificationImageList" list-type="picture-card" accept="image/jpeg, image/jpg, image/png" :on-preview="handlePreview" :before-upload="beforePictureUpload1" :on-change="handlePictureChange1" :on-remove="handlePictureChange1" :httpRequest="httpRequest">
+                        <div slot="tip" class="el-upload__tip">资质证明文件包括：图书馆经营许可证、法人身份证件等；最多上传9张照片，每张照片不超过2MB</div>
+                        <i class="el-icon-plus"></i>
+                    </el-upload>
                 </el-form-item>
             </el-form>
             <div slot="footer">
@@ -71,6 +101,22 @@
         <el-dialog title="审核结果" :visible.sync="approvalDialog.visible">
             <el-form ref="approvalForm" label-width="120px" label-position="left" :model="approvalDialog.data">
                 <el-form-item v-for="item in columns" :label="item.label">{{item.isPassword ? "******" : (approvalDialog.data[item.prop] || '未填写') }}</el-form-item>
+                <el-form-item label="照片">
+                    <el-carousel v-if="approvalDialog.data.imageUrls && approvalDialog.data.imageUrls.length" :interval="4000" type="card" height="200px" style="max-width: 700px">
+                        <el-carousel-item v-for="item in approvalDialog.data.imageUrls" :key="item">
+                            <img :src="item" style="max-height: 200px" @click="handlePreview({url: item})">
+                        </el-carousel-item>
+                    </el-carousel>
+                    <div v-else>未上传</div>
+                </el-form-item>
+                <el-form-item label="资质证明文件">
+                    <el-carousel v-if="approvalDialog.data.qualificationImageUrls && approvalDialog.data.qualificationImageUrls.length" :interval="4000" type="card" height="200px" style="max-width: 700px">
+                        <el-carousel-item v-for="item in approvalDialog.data.qualificationImageUrls" :key="item">
+                            <img :src="item" style="max-height: 200px" @click="handlePreview({url: item})">
+                        </el-carousel-item>
+                    </el-carousel>
+                    <div v-else>未上传</div>
+                </el-form-item>
                 <el-form-item label="审核结果">
                     <el-radio v-model="approvalDialog.data.state" :label="1">通过</el-radio>
                     <el-radio v-model="approvalDialog.data.state" :label="2">未通过</el-radio>
@@ -85,10 +131,14 @@
                 <el-button type="primary" :loading="approvalDialog.btnLoading" @click="approve">确 定</el-button>
             </div>
         </el-dialog>
+        <el-dialog v-model="previewDialog.visible">
+            <img width="100%" :src="previewDialog.url" alt="">
+        </el-dialog>
     </div>
 </template>
 <script>
 import { getUsers, updateLibraryInfoById, updateStateById, block, unblock } from '../../api/library.js';
+import httpRequest from '../../utils/httpRequest';
 export default {
     data: () => {
         return {
@@ -110,6 +160,12 @@ export default {
                     return row['phone'] || '---';
                 }
             }, {
+                prop: 'description',
+                label: '描述',
+                type: 'textarea',
+                rows: 5,
+                hiddenInTable: true
+            }, {
                 prop: 'adminName',
                 label: '管理员姓名',
                 width: '120',
@@ -126,6 +182,7 @@ export default {
                 label: '管理员密码',
                 width: '120',
                 isPassword: true,
+                type: 'password',
                 formatter: function(row) {
                     return '******';
                 }
@@ -148,11 +205,16 @@ export default {
                     id: undefined,
                     name: undefined,
                     phone: undefined,
+                    description: undefined,
                     adminPhone: undefined,
                     adminName: undefined,
                     adminPassword: undefined,
-                    state: undefined
+                    state: undefined,
+                    imageUrls: [], // 图书馆照片，只保存链接
+                    qualificationImageUrls: []
                 },
+                imageList: [], // 图书馆照片的信息对象列表
+                qualificationImageList: [],
                 updateBtnLoading: false, // 编辑用户信息的提交按钮
                 blacklistBtnLoading: false, // 拉黑按钮
             },
@@ -162,7 +224,11 @@ export default {
                 data: {},
                 btnLoading: false,
                 reasonRule: { required: true, message: '请填写反馈信息', trigger: 'blur' },
-            }
+            },
+            previewDialog: {
+                visible: false,
+                url: ""
+            },
         }
     },
     created: function() {
@@ -218,18 +284,39 @@ export default {
             })
         },
         // 显示编辑Dialog
-        showEditDialog(index) {
+        showEditDialog(index, row) {
             this.editDialog.index = index;
             this.editDialog.data = Object.assign({}, this.users[index]);
+            if (row.imageUrls) {
+                this.editDialog.imageList = row.imageUrls.map((i) => {
+                    return { name: '', url: i, status: 'success', response: { data: i } };
+                });
+            } else {
+                this.editDialog.imageList = [];
+            }
+            if (row.qualificationImageUrls) {
+                this.editDialog.qualificationImageList = row.qualificationImageUrls.map((i) => {
+                    return { name: '', url: i, status: 'success', response: { data: i } };
+                });
+            } else {
+                this.editDialog.qualificationImageList = [];
+            }
             this.editDialog.visible = true;
+        },
+        // 关闭编辑dialog时将图片列表设为空，防止编辑其他行时图片列表有退出动画
+        resetEditDialog() {
+            this.editDialog.imageList = [];
+            this.editDialog.qualificationImageList = [];
         },
         // 编辑用户信息
         updateUserInfo() {
             this.editDialog.updateBtnLoading = true;
+            this.editDialog.data.imageUrls = this.editDialog.imageList.map((i) => i.response.data);
+            this.editDialog.data.qualificationImageUrls = this.editDialog.qualificationImageList.map((i) => i.response.data);
             updateLibraryInfoById(this.editDialog.data.id, this.editDialog.data).then(() => {
                 Object.keys(this.editDialog.data).forEach((key) => {
                     this.users[this.editDialog.index][key] = this.editDialog.data[key];
-                });
+                })
                 this.editDialog.visible = false;
                 this.$message.success("修改图书馆信息成功");
             }).finally(() => this.editDialog.updateBtnLoading = false);
@@ -262,6 +349,47 @@ export default {
                 })
             });
         },
+        handlePreview(file) {
+            this.previewDialog.url = file.url;
+            this.previewDialog.visible = true;
+        },
+        handlePictureChange(file, fileList) {
+            this.editDialog.imageList = fileList;
+        },
+        beforePictureUpload(file) {
+            if (this.editDialog.imageList.length > 9) {
+                this.$message.error('最多只能上传9张图片');
+                return false;
+            }
+            const isJPG = file.type === 'image/jpeg' || file.type === 'image/jpg' || file.type === 'image/png';
+            const isLt2M = file.size / 1024 / 1024 < 2;
+            if (!isJPG) {
+                this.$message.error('上传头像图片只能是 JPG/PNG 格式');
+            }
+            if (!isLt2M) {
+                this.$message.error('上传头像图片大小不能超过 2MB');
+            }
+            return isJPG && isLt2M;
+        },
+        handlePictureChange1(file, fileList) {
+            this.editDialog.qualificationImageList = fileList;
+        },
+        beforePictureUpload1(file) {
+            if (this.editDialog.qualificationImageList.length > 9) {
+                this.$message.error('最多只能上传9张图片');
+                return false;
+            }
+            const isJPG = file.type === 'image/jpeg' || file.type === 'image/jpg' || file.type === 'image/png';
+            const isLt2M = file.size / 1024 / 1024 < 2;
+            if (!isJPG) {
+                this.$message.error('上传头像图片只能是 JPG/PNG 格式');
+            }
+            if (!isLt2M) {
+                this.$message.error('上传头像图片大小不能超过 2MB');
+            }
+            return isJPG && isLt2M;
+        },
+        httpRequest: httpRequest,
     }
 }
 </script>
@@ -277,5 +405,9 @@ export default {
 
 .dialog-footer>.deleteBtn {
     float: left;
+}
+
+.el-carousel__item {
+    text-align: center;
 }
 </style>

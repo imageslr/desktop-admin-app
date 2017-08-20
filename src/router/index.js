@@ -36,7 +36,7 @@ export default new Router({
       component: resolve => require(['../views/user/Wechat.vue'], resolve),
     }, {
       path: 'library',
-      name: '图书馆管理员',
+      name: '图书馆',
       component: resolve => require(['../views/user/Library.vue'], resolve),
     }, {
       path: 'wiki',
