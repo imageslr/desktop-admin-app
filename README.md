@@ -1,18 +1,21 @@
-```
-desktop-wiki-app
-├─dist              // 输出目录
-├─src               // 源文件目录
-│ ├─assets          // 字体文件
-│ ├─components      // 全局组件
-│ ├─router          // 路由文件
-│ ├─static          // 静态文件
-│ ├─views           // 页面文件
-│ ├─App.vue         // 入口组件
-│ ├─index.html      // 入口页面
-│ ├─main.js         // 入口JS文件
-│ └─vendor.js       // 公用模块
-├─package.json      // npm配置文件
-└─webpack.config.js // webpack配置文件
+# desktop-manager-app
+
+> A Vue.js project
+
+## Build Setup
+
+``` bash
+# install dependencies
+npm install
+
+# serve with hot reload at localhost:8080
+npm run dev
+
+# build for production with minification
+npm run build
+
+# build for production and view the bundle analyzer report
+npm run build --report
 ```
 
-https://api.mymoonlight.cn/wiki/
+For detailed explanation on how things work, checkout the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).

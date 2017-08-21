@@ -24,7 +24,7 @@
             <el-table-column type="expand">
                 <template scope="props">
                     <el-form label-position="left" label-width="50px">
-                        <el-form-item label="描述">{{ props.row.description || '未填写' }}</el-form-item>
+                        <el-form-item label="描述" class="library-description">{{ props.row.description || '未填写' }}</el-form-item>
                         <el-form-item label="地址">{{ props.row.location || '未填写' }}</el-form-item>
                         <el-form-item label="照片">
                             <el-carousel v-if="props.row.imageUrls && props.row.imageUrls.length" :interval="4000" type="card" height="200px" style="max-width: 700px">
@@ -98,7 +98,7 @@
                 <el-button type="primary" :loading="editDialog.updateBtnLoading" @click="updateUserInfo">确 定</el-button>
             </div>
         </el-dialog>
-        <el-dialog title="审核结果" :visible.sync="approvalDialog.visible">
+        <el-dialog class="approve-dialog" title="审核结果" :visible.sync="approvalDialog.visible">
             <el-form ref="approvalForm" label-width="120px" label-position="left" :model="approvalDialog.data">
                 <el-form-item v-for="item in columns" :label="item.label">{{item.isPassword ? "******" : (approvalDialog.data[item.prop] || '未填写') }}</el-form-item>
                 <el-form-item label="照片">
@@ -409,5 +409,14 @@ export default {
 
 .el-carousel__item {
     text-align: center;
+}
+
+.library-description {
+    white-space: pre-wrap;
+}
+</style>
+<style>
+.approve-dialog .el-form-item__content {
+    white-space: pre-wrap;
 }
 </style>

@@ -78,7 +78,10 @@
     </div>
 </template>
 <script>
-import echarts from 'echarts';
+var echarts = require('echarts/lib/echarts');
+require('echarts/lib/chart/line');
+require('echarts/lib/component/tooltip');
+require('echarts/lib/component/title');
 import CountTo from 'vue-count-to';
 import { getSummary } from '../../api/index.js';
 

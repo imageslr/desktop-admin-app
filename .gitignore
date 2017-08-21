@@ -1,2 +1,6 @@
 
 node_modules/
+
+dist/
+dist/1.js
+dist/0.js.map

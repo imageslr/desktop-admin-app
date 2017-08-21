@@ -1,5 +1,14 @@
 import Vue from 'vue';
 import Router from 'vue-router';
+import Login from '../views/login/index.vue';
+import Dashboard from '../views/dashboard/index.vue';
+import Layout from '../views/layout/Layout.vue';
+import Wechat from '../views/user/Wechat.vue';
+import Library from '../views/user/Library.vue';
+import Wiki from '../views/user/Wiki.vue';
+import MessageDetail from '../views/message/MessageDetail.vue';
+import Message from '../views/message/index.vue';
+import Error404 from '../views/error/404.vue';
 
 
 Vue.use(Router);
@@ -12,40 +21,40 @@ export default new Router({
   }, {
     path: '/login',
     hidden: true,
-    component: resolve => require(['../views/login/index.vue'], resolve)
+    component: Login
   }, {
     path: '/dashboard',
-    component: resolve => require(['../views/layout/Layout.vue'], resolve),
+    component: Layout,
     redirect: '/dashboard/index',
     noDropdown: true,
     icon: 'all',
     children: [{
       path: 'index',
       name: '首页',
-      component: resolve => require(['../views/dashboard/index.vue'], resolve),
+      component: Dashboard,
     }]
   }, {
     path: '/user',
-    component: resolve => require(['../views/layout/Layout.vue'], resolve),
+    component: Layout,
     name: '用户管理',
     redirect: '/user/wechat',
     icon: 'account',
     children: [{
       path: 'wechat',
       name: '小程序用户',
-      component: resolve => require(['../views/user/Wechat.vue'], resolve),
+      component: Wechat,
     }, {
       path: 'library',
       name: '图书馆',
-      component: resolve => require(['../views/user/Library.vue'], resolve),
+      component: Library,
     }, {
       path: 'wiki',
       name: 'Wiki系统用户',
-      component: resolve => require(['../views/user/Wiki.vue'], resolve),
+      component: Wiki
     }]
   }, {
     path: '/message',
-    component: resolve => require(['../views/layout/Layout.vue'], resolve),
+    component: Layout,
     noDropdown: true,
     isMessageItem: true,
     icon: 'email',
@@ -56,20 +65,20 @@ export default new Router({
     }, {
       path: 'detail/:id',
       name: '消息详情',
-      component: resolve => require(['../views/message/MessageDetail.vue'], resolve),
+      component: MessageDetail,
     }, {
       path: ':name',
       name: '收件箱',
       //meta: { noBreadCrumb: true },
-      component: resolve => require(['../views/message/index.vue'], resolve),
+      component: Message,
     }, ]
   }, {
     path: '/404',
     hidden: true,
-    component: resolve => require(['../views/layout/Layout.vue'], resolve),
+    component: Layout,
     children: [{
       path: '',
-      component: resolve => require(['../views/error/404.vue'], resolve)
+      component: Error404
     }]
   }, {
     path: '*',

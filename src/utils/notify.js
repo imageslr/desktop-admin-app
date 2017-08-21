@@ -21,7 +21,6 @@ export default function notifyMessage(type) {
             path = '/message/wechat';
             break;
     }
-    console.log(1);
     var note = Notification.info({
         title: '提示',
         message: '您在收件箱：' + boxName + ' 中有新的未读消息，点击查看',
