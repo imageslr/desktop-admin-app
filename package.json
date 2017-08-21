@@ -1,5 +1,5 @@
 {
-  "name": "desktop-manager-app",
+  "name": "desktop-admin-app",
   "version": "1.0.0",
   "description": "A Vue.js project",
   "author": "zhukaihao <zhukaihaorj@163.com>",
@@ -18,10 +18,10 @@
     "particles.js": "^2.0.0",
     "promise.prototype.finally": "^2.0.1",
     "screenfull": "^3.3.1",
-    "vuex": "^2.3.1",
     "vue": "^2.3.3",
     "vue-count-to": "^1.0.5",
-    "vue-router": "^2.6.0"
+    "vue-router": "^2.6.0",
+    "vuex": "^2.3.1"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",
