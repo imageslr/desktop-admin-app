@@ -82,6 +82,7 @@ var echarts = require('echarts/lib/echarts');
 require('echarts/lib/chart/line');
 require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
+require('echarts/lib/component/legend');
 import CountTo from 'vue-count-to';
 import { getSummary } from '../../api/index.js';
 
