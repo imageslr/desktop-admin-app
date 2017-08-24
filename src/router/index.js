@@ -41,7 +41,7 @@ export default new Router({
     icon: 'account',
     children: [{
       path: 'wechat',
-      name: '小程序用户',
+      name: '小程序',
       component: Wechat,
     }, {
       path: 'library',
@@ -49,7 +49,7 @@ export default new Router({
       component: Library,
     }, {
       path: 'wiki',
-      name: 'Wiki系统用户',
+      name: 'Wiki系统',
       component: Wiki
     }]
   }, {
