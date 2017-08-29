@@ -16,7 +16,9 @@ export function login(username, password) {
 // 获取管理员的用户信息
 export function getUserInfo(token) {
     return fetch.get('/api/wiki/users/info', {
-        params: { token }
+        params: {
+            token
+        }
     });
 }
 
@@ -29,6 +31,6 @@ export function changePassword(id, originPassword, newPassword) {
     });
 }
 
-export function getSummary(){
+export function getSummary() {
     return fetch.get('/api/summary');
 }

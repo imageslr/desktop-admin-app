@@ -1,47 +1,49 @@
 <template>
-    <el-breadcrumb separator="/">
-        <el-breadcrumb-item v-for="(item,index) in levelList" :key="item.path">
-            <router-link v-if='item.redirect==="noredirect"||index==levelList.length-1' to="" class="no-redirect">{{item.name}}</router-link>
-            <router-link v-else :to="item.path">{{item.name}}</router-link>
-        </el-breadcrumb-item>
-    </el-breadcrumb>
+  <el-breadcrumb separator="/">
+    <el-breadcrumb-item v-for="(item,index) in levelList" :key="item.path">
+      <router-link v-if='item.redirect==="noredirect"||index==levelList.length-1' to="" class="no-redirect">{{item.name}}</router-link>
+      <router-link v-else :to="item.path">{{item.name}}</router-link>
+    </el-breadcrumb-item>
+  </el-breadcrumb>
 </template>
 <script>
 export default {
-    created() {
-        this.getBreadcrumb()
-    },
-    data() {
-        return {
-            levelList: null
-        }
-    },
-    methods: {
-        getBreadcrumb() {
-            let matched = this.$route.matched.filter(item => item.name);
-            if(this.$route.matched.some(i => i.path == '/message')) {
-                matched.unshift({path: '/message', name: '消息中心'});
-            }
-            this.levelList = matched;
-        }
-    },
-    watch: {
-        $route() {
-            this.getBreadcrumb();
-        }
+  created() {
+    this.getBreadcrumb()
+  },
+  data() {
+    return {
+      levelList: null
     }
+  },
+  methods: {
+    getBreadcrumb() {
+      let matched = this.$route.matched.filter(item => item.name);
+      if (this.$route.matched.some(i => i.path == '/message')) {
+        matched.unshift({ path: '/message', name: '消息中心' });
+      }
+      this.levelList = matched;
+    }
+  },
+  watch: {
+    $route() {
+      this.getBreadcrumb();
+    }
+  }
 }
+
 </script>
 <style scoped>
 .el-breadcrumb {
-    display: inline-block;
-    font-size: 14px;
-    margin: 10px 0 20px;
-    margin-left: 10px;
+  display: inline-block;
+  font-size: 14px;
+  margin: 10px 0 20px;
+  margin-left: 10px;
 }
 
 .el-breadcrumb .no-redirect {
-    color: #97a8be;
-    cursor: text;
+  color: #97a8be;
+  cursor: text;
 }
+
 </style>
